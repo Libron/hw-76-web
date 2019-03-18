@@ -3,8 +3,8 @@ import './Form.css';
 
 class Form extends Component {
     state = {
-        message: null,
-        author: null
+        message: '',
+        author: ''
     };
 
     updateMessage = (event) => {
@@ -17,9 +17,7 @@ class Form extends Component {
 
     submitForm = (event) => {
         event.preventDefault();
-        if (this.state.message && this.state.author) {
-           this.props.publishMessage({message: this.state.message, author: this.state.author});
-        }
+        this.props.publishMessage({...this.state});
     };
 
     render() {
