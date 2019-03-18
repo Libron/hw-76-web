@@ -1,43 +1,18 @@
 import React, { Component } from 'react';
+import {connect} from "react-redux";
+
+import {fetchMessages, publishMessage} from "./store/actions";
 import Form from "./components/Form/Form";
 import ChatBox from "./components/ChatBox/ChatBox";
 
 import './App.css';
 
 class App extends Component {
-    state = {
-        messages: [],
-        datetime: null
-    };
-
-    endpointURL = 'http://146.185.154.90:8000/messages';
     interval = null;
-
-    getNewMessages(datetime = this.state.datetime) {
-        let url = this.endpointURL;
-        if (datetime !== null) {
-            url = this.endpointURL + '?datetime=' + datetime;
-        }
-
-        fetch(url).then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Request failed');
-        }).then(result => {
-            if (result.length !== 0) {
-                let newData = [...result];
-                newData = newData.reverse();
-                const messages = newData.concat(this.state.messages);
-                const datetime = result[result.length - 1].datetime;
-                this.setState({messages, datetime});
-            }
-        });
-    };
 
     componentDidMount() {
         this.interval = setInterval(() => {
-            this.getNewMessages()
+            this.props.fetchMessages();
         }, 3000);
     };
 
@@ -45,28 +20,27 @@ class App extends Component {
         clearInterval(this.interval)
     };
 
-    publishMessage = (formData) => {
-        const data = new URLSearchParams();
-        data.set('message', formData.message);
-        data.set('author', formData.author);
-        fetch(this.endpointURL, {
-           method: 'POST',
-           body: data,
-        }).then(response => {
-            if (response.ok) {
-                console.log('New message published');
-            }
-        });
-    };
-
   render() {
     return (
       <div className="App">
-        <Form publishMessage={this.publishMessage} />
-          <ChatBox messages={this.state.messages}/>
+        <Form publishMessage={this.props.publishMessage} />
+          <ChatBox messages={this.props.messages}/>
       </div>
     );
   }
 }
 
-export default App;
+const mapStateToProps = state => {
+    return {
+        messages: state.messages
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        fetchMessages: () => dispatch(fetchMessages()),
+        publishMessage: (message) => dispatch(publishMessage(message))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
