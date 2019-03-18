@@ -5,9 +5,9 @@ import './ChatBox.css';
 const ChatBox = props => {
     return (
         <ol className="chatBox">
-            {props.messages.map((msg, key) =>(
+            {props.messages.map((msg) =>(
                 <Message
-                    key={key}
+                    key={msg.id}
                     message={msg.message}
                     author={msg.author}
                     datetime={msg.datetime}
